@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EPC GAME — Electricity &amp; Happiness</title>
+<meta name="description" content="EPC GAME — a fun interactive demo showing how electricity affects people's happiness." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%E2%9A%A1</text></svg>" />
+<link rel="stylesheet" href="style.css" />
+</head>
+
+<!-- ============================================================
+     EPC GAME
+     Electricity (Power) changes everything -> changes happiness.
+     Electricity starts OFF. Press the big button to bring the light.
+     ============================================================ -->
+<body class="power-off">
+
+  <div class="app">
+
+    <!-- ======================= TOP BAR ======================= -->
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-bolt" aria-hidden="true">⚡</span>
+        <div class="brand-text">
+          <h1>EPC GAME</h1>
+          <p class="tagline">Electricity &amp; Power &rarr; Happiness</p>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <!-- Electricity status -->
+        <div class="status-badge is-off" id="statusBadge" role="status" aria-live="polite">
+          <span class="status-bolt" id="statusBolt" aria-hidden="true">⚡</span>
+          <span class="status-text" id="statusText">ELECTRICITY OFF</span>
+        </div>
+
+        <!-- Sound toggle -->
+        <button class="icon-btn" id="soundBtn" type="button" aria-pressed="true" aria-label="Mute sound" title="Mute / Unmute sound">
+          <svg class="sound-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path class="spk" d="M4 9.5h3.2L12 5.5v13L7.2 14.5H4z" />
+            <path class="wave" d="M15.4 9.4a3.6 3.6 0 0 1 0 5.2" />
+            <path class="wave" d="M18 6.8a7.4 7.4 0 0 1 0 10.4" />
+            <path class="mute-slash" d="M15.5 9.5l5 5M20.5 9.5l-5 5" />
+          </svg>
+        </button>
+
+        <!-- Reset -->
+        <button class="icon-btn" id="resetBtn" type="button" title="Restart the game">
+          <span aria-hidden="true">⟳</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ======================= MAIN LAYOUT ======================= -->
+    <main class="layout">
+
+      <!-- ---------- STAGE : the room ---------- -->
+      <section class="stage-wrap">
+        <div class="stage" id="stage">
+
+          <div class="room">
+
+            <!-- BACK WALL -->
+            <div class="wall">
+              <div class="wall-art">
+                <div class="frame-picture">
+                  <span class="picture-sun"></span>
+                  <span class="picture-hill h1"></span>
+                  <span class="picture-hill h2"></span>
+                </div>
+              </div>
+
+              <!-- Window -->
+              <div class="window">
+                <div class="sky">
+                  <span class="sky-day"></span>
+                  <span class="sun"></span>
+                  <span class="moon"></span>
+                  <span class="stars"></span>
+                </div>
+                <span class="win-frame win-v"></span>
+                <span class="win-frame win-h"></span>
+                <span class="sill"></span>
+              </div>
+
+              <!-- TV -->
+              <div class="tv">
+                <div class="tv-screen"><span class="tv-bars"></span></div>
+                <div class="tv-neck"></div>
+                <div class="tv-base"></div>
+              </div>
+
+              <!-- Big lightning-bolt sign on the wall (glows when powered) -->
+              <div class="bolt-sign" id="boltSign">
+                <span class="bolt-glow"></span>
+                <span class="bolt-shape" aria-hidden="true">⚡</span>
+                <span class="bolt-crack" aria-hidden="true"></span>
+              </div>
+
+              <!-- Ceiling bulbs -->
+              <div class="bulb-row">
+                <div class="bulb" style="--i:0">
+                  <span class="cord"></span>
+                  <span class="halo"></span>
+                  <span class="bulb-base"></span>
+                  <span class="glass"></span>
+                  <span class="filament"></span>
+                </div>
+                <div class="bulb" style="--i:1">
+                  <span class="cord"></span>
+                  <span class="halo"></span>
+                  <span class="bulb-base"></span>
+                  <span class="glass"></span>
+                  <span class="filament"></span>
+                </div>
+                <div class="bulb" style="--i:2">
+                  <span class="cord"></span>
+                  <span class="halo"></span>
+                  <span class="bulb-base"></span>
+                  <span class="glass"></span>
+                  <span class="filament"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- FLOOR -->
+            <div class="floor">
+              <div class="rug"></div>
+              <div class="plant">
+                <span class="leaf l1"></span>
+                <span class="leaf l2"></span>
+                <span class="leaf l3"></span>
+                <span class="pot"></span>
+              </div>
+            </div>
+
+            <!-- LIGHT OVERLAYS (crossfade for smooth bright/dark transition) -->
+            <div class="room-light" aria-hidden="true"></div>
+            <div class="room-dark" aria-hidden="true"></div>
+
+            <!-- ============ THE CHARACTER ============ -->
+            <div class="character-wrap" id="characterWrap">
+              <svg class="character" viewBox="0 0 240 330" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <defs>
+                  <linearGradient id="shirtGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#57b0ff" />
+                    <stop offset="100%" stop-color="#2a63c9" />
+                  </linearGradient>
+                </defs>
+
+                <!-- ground shadow -->
+                <ellipse class="ch-shadow" cx="120" cy="314" rx="62" ry="11" />
+
+                <!-- ARMS : happy (raised, celebrating) -->
+                <g class="arms arms-happy">
+                  <path class="arm" d="M80 166 Q44 150 38 114" />
+                  <circle class="hand" cx="36" cy="108" r="12" />
+                  <path class="arm" d="M160 166 Q196 150 202 114" />
+                  <circle class="hand" cx="204" cy="108" r="12" />
+                </g>
+
+                <!-- ARMS : sad (drooping) -->
+                <g class="arms arms-sad">
+                  <path class="arm" d="M80 166 Q50 196 48 228" />
+                  <circle class="hand" cx="48" cy="234" r="11" />
+                  <path class="arm" d="M160 166 Q190 196 192 228" />
+                  <circle class="hand" cx="192" cy="234" r="11" />
+                </g>
+
+                <!-- LEGS + SHOES -->
+                <g class="legs">
+                  <rect class="leg" x="88" y="216" width="30" height="86" rx="14" />
+                  <rect class="leg" x="122" y="216" width="30" height="86" rx="14" />
+                  <rect class="shoe" x="74" y="292" width="48" height="28" rx="13" />
+                  <rect class="shoe" x="118" y="292" width="48" height="28" rx="13" />
+                </g>
+
+                <!-- TORSO -->
+                <g class="torso-group">
+                  <rect class="torso" x="68" y="140" width="104" height="92" rx="32" />
+                  <path class="bolt-emblem" d="M126 152 L108 182 H120 L111 205 L139 172 H125 L135 152 Z" />
+                </g>
+
+                <!-- HEAD -->
+                <g class="head-group">
+                  <circle class="ear" cx="67" cy="92" r="11" />
+                  <circle class="ear" cx="173" cy="92" r="11" />
+                  <circle class="head" cx="120" cy="86" r="52" />
+                  <path class="hair" d="M70 72 C70 36 92 25 120 25 C148 25 170 36 170 72 C160 55 146 47 120 47 C94 47 80 55 70 72 Z" />
+
+                  <!-- HAPPY FACE -->
+                  <g class="face face-happy">
+                    <path class="eye-happy" d="M91 87 q10 -15 20 0" />
+                    <path class="eye-happy" d="M129 87 q10 -15 20 0" />
+                    <ellipse class="blush" cx="86" cy="106" rx="11" ry="7" />
+                    <ellipse class="blush" cx="154" cy="106" rx="11" ry="7" />
+                    <path class="mouth-happy" d="M95 106 q25 28 50 0" />
+                  </g>
+
+                  <!-- SAD FACE -->
+                  <g class="face face-sad">
+                    <g class="eye-sad">
+                      <ellipse class="eye-white" cx="101" cy="89" rx="10" ry="11" />
+                      <circle class="pupil" cx="101" cy="90" r="4.6" />
+                      <ellipse class="eye-white" cx="139" cy="89" rx="10" ry="11" />
+                      <circle class="pupil" cx="139" cy="90" r="4.6" />
+                    </g>
+                    <path class="brow" d="M87 71 L111 62" />
+                    <path class="brow" d="M153 71 L129 62" />
+                    <path class="mouth-sad" d="M99 119 q21 -19 42 0" />
+                    <path class="tear" d="M147 96 q5 9 0 13 q-5 -4 0 -13 Z" />
+                  </g>
+                </g>
+              </svg>
+            </div>
+
+            <!-- Particles / flash effects -->
+            <div class="fx" id="fx" aria-hidden="true"></div>
+            <div class="flash" id="flash" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <!-- Message bar -->
+        <div class="message-bar" id="messageBar">
+          <span class="message-emoji" id="messageEmoji" aria-hidden="true">🌑</span>
+          <p class="message-text" id="message">Electricity is OFF! Everyone is Unhappy! 😢</p>
+        </div>
+      </section>
+
+      <!-- ---------- SIDE PANEL ---------- -->
+      <aside class="side">
+
+        <!-- Happiness meter -->
+        <section class="card meter-card">
+          <div class="card-head">
+            <h2>😊 Happiness Meter</h2>
+            <span class="card-value" id="happinessValue">0%</span>
+          </div>
+          <div class="meter" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="happinessMeter">
+            <div class="meter-fill" id="meterFill"></div>
+            <div class="meter-shine"></div>
+          </div>
+          <div class="meter-face" id="meterFace" aria-hidden="true">😐</div>
+          <p class="meter-note" id="meterNote">Switch the electricity ON to make him smile!</p>
+        </section>
+
+        <!-- Counters -->
+        <section class="card stats-card">
+          <div class="card-head">
+            <h2>⚡ Power Stats</h2>
+          </div>
+          <div class="stat-grid">
+            <div class="stat stat-on">
+              <span class="stat-num" id="onCount">0</span>
+              <span class="stat-label">Times ON</span>
+            </div>
+            <div class="stat stat-off">
+              <span class="stat-num" id="offCount">0</span>
+              <span class="stat-label">Times OFF</span>
+            </div>
+            <div class="stat stat-total">
+              <span class="stat-num" id="totalCount">0</span>
+              <span class="stat-label">Total Switches</span>
+            </div>
+          </div>
+          <div class="history">
+            <span class="history-label">History</span>
+            <div class="history-dots" id="historyDots"><em class="empty">no switches yet</em></div>
+          </div>
+        </section>
+
+        <!-- Tip card -->
+        <section class="card tip-card">
+          <h2>💡 Did you know?</h2>
+          <p id="tipText">Without electricity there is no light, no TV, no fan, no fridge — life gets dark and hard.</p>
+        </section>
+      </aside>
+    </main>
+
+    <!-- ======================= CONTROLS ======================= -->
+    <footer class="controls">
+      <button class="power-btn" id="powerBtn" type="button">
+        <span class="power-btn-icon" id="powerBtnIcon" aria-hidden="true">⚡</span>
+        <span class="power-btn-label" id="powerBtnLabel">Turn Electricity ON</span>
+      </button>
+      <p class="hint">Tip: press <kbd>E</kbd> or <kbd>Space</kbd> to flip the switch</p>
+    </footer>
+
+    <p class="foot-note">EPC GAME — a tiny demo about electricity &amp; happiness. Built with plain HTML, CSS &amp; JavaScript.</p>
+  </div>
+
+  <noscript>
+    <p style="padding:24px;text-align:center;font-family:sans-serif">
+      This game needs JavaScript enabled to switch the electricity. ☀️
+    </p>
+  </noscript>
+
+  <script src="script.js"></script>
+</body>
+</html>
